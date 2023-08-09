@@ -42,5 +42,7 @@ public class SparkTutorial {
         List<Tuple2<String, Integer>> collect = sortedByValue.mapToPair(tp -> new Tuple2<>(tp._2(), tp._1())).collect();
 
         System.out.println(collect);
+
+        sc.close();
     }
 }
