@@ -1,2 +1,5 @@
-# bigdata-cookbook
-common bigdata componets cookbook, eg. spark\flink\hbase\hive\kafka\hdfs
+# <center> bigdata-cookbook
+
+## 项目简介
+
+本项目旨在整理常用大数据组件，日常开发中的常规操作，小的组合方案的实现。同时也包括一些组件练习集群的搭建
