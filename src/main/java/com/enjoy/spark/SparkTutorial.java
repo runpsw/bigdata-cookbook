@@ -14,7 +14,6 @@ import java.util.Set;
 
 /**
  * @author psw
- * @date 2023/08/09
  *
  * spark official tutorial of java api
  */
@@ -33,7 +32,7 @@ public class SparkTutorial {
         JavaRDD<String> strRdd = sc.textFile(path);
         JavaPairRDD<String, String> pairRdd = sc.wholeTextFiles(pairPath);
 
-//        strRdd.collect().stream().forEach(System.out::println);
+        strRdd.collect().stream().forEach(System.out::println);
         System.out.println("--------------------------------");
         Map<String, String> map = pairRdd.collectAsMap();
         Set<String> strings = map.keySet();
