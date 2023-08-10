@@ -4,13 +4,11 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.sources.In;
 import org.jetbrains.annotations.NotNull;
 import scala.Tuple2;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author psw
@@ -39,6 +37,13 @@ public class SparkTutorial {
         for (String string : strings) {
             System.out.println(string + "->" + map.get(string));
         }
+
+        // 并行化集合的方式创建RDD
+        List<Integer> lst = new ArrayList<>();
+        lst.add(1);
+        lst.add(2);
+        JavaRDD<Integer> rdd = sc.parallelize(lst);
+        rdd.collect();
 
         sc.close();
     }
