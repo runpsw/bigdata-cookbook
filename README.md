@@ -11,3 +11,6 @@ spark 模块有spark core 下面每个transform 如何使用
 
 ### flink 
 flink 是一个批流一体的分布式计算框架
+
+### kafka
+kafka 是一个分布式的消息队列
