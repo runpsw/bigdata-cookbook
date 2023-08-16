@@ -1,3 +1,7 @@
 hdfs 1
 spark 2
-word 4
+hdfs 4
+spark 1
+spark 2
+hdfs 4
+yarn 1

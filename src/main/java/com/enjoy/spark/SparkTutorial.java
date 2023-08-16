@@ -34,7 +34,14 @@ public class SparkTutorial {
         // 并行化集合的方式创建RDD
 //        paralleRdd(sc);
 
-        // 理解cogroup 算子的功能
+        // 理解cogroup 算子的功能, 按照key 将相同的key的value组织到一个tuple中，key还是key，value 编程了iterable了
+        JavaRDD<String> strRdd = sc.textFile("data/pair.txt");
+        JavaPairRDD<String, String> rdd1 = strRdd.mapToPair(line -> new Tuple2(line.split(" ")[0], line.split(" ")[1]));
+
+        JavaPairRDD<String, String> rdd2 = rdd1.mapToPair(tp -> new Tuple2<>(tp._1(), tp._2() + 1));
+
+        JavaPairRDD<String, Tuple2<Iterable<String>, Iterable<String>>> cogroup = rdd1.cogroup(rdd2);
+        System.out.println(cogroup.collect());
 
         sc.close();
     }
