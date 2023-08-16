@@ -24,7 +24,30 @@ public class SparkTutorial {
         // word count simple
 //        wordCountSimple(sc);
 
-        // read from local file system
+        /*
+         read from local file system
+         textFile(): 将文件内容读出来。可以给目录，文件，通配符文件
+         wholeTextFiles(): 读出来的是pair rdd, key 是文件名，value 是文件内容，适用于读取小文件
+         */
+//        textFileVsWholeTextFiles(sc);
+
+        // 并行化集合的方式创建RDD
+//        paralleRdd(sc);
+
+        // 理解cogroup 算子的功能
+
+        sc.close();
+    }
+
+    private static void paralleRdd(JavaSparkContext sc) {
+        List<Integer> lst = new ArrayList<>();
+        lst.add(1);
+        lst.add(2);
+        JavaRDD<Integer> rdd = sc.parallelize(lst);
+        rdd.collect();
+    }
+
+    private static void textFileVsWholeTextFiles(JavaSparkContext sc) {
         String path = "data/wc-data.txt";
         String pairPath = "data/pair.txt";
         JavaRDD<String> strRdd = sc.textFile(path);
@@ -37,15 +60,6 @@ public class SparkTutorial {
         for (String string : strings) {
             System.out.println(string + "->" + map.get(string));
         }
-
-        // 并行化集合的方式创建RDD
-        List<Integer> lst = new ArrayList<>();
-        lst.add(1);
-        lst.add(2);
-        JavaRDD<Integer> rdd = sc.parallelize(lst);
-        rdd.collect();
-
-        sc.close();
     }
 
     private static void wordCountSimple(JavaSparkContext sc) {
