@@ -4,6 +4,9 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.FlatMapFunction;
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.sql.sources.In;
 import org.jetbrains.annotations.NotNull;
 import scala.Tuple2;
@@ -35,6 +38,50 @@ public class SparkTutorial {
 //        paralleRdd(sc);
 
         // 理解cogroup 算子的功能, 按照key 将相同的key的value组织到一个tuple中，key还是key，value 编程了iterable了
+//        cogroupDemo(sc);
+
+        // aggregateByKey 算子功能：对KV使用给定的（i1,i2）进行聚合计算，当给定（0[agg 初始值]，0[count 的初始值]）的时候，返回(k,(agg, count-key))
+        aggregateByKeyDemo(sc);
+
+        sc.close();
+    }
+
+    private static void aggregateByKeyDemo(JavaSparkContext sc) {
+        JavaRDD<String> rawRdd = sc.textFile("data/pair.txt");
+        JavaRDD<Tuple2<String, Integer>> tpRdd = rawRdd.flatMap(new FlatMapFunction<String, Tuple2<String, Integer>>() {
+            @Override
+            public Iterator<Tuple2<String, Integer>> call(String s) throws Exception {
+                String[] arr = s.split(" ");
+                ArrayList<Tuple2<String, Integer>> lst = new ArrayList<>();
+                lst.add(new Tuple2<>(arr[0], Integer.parseInt(arr[1])));
+                return lst.iterator();
+            }
+        });
+
+        JavaPairRDD<String, Integer> pairRDD = JavaPairRDD.fromJavaRDD(tpRdd);
+        JavaPairRDD<String, Tuple2<Integer, Integer>> aggByKeyPairRdd = pairRDD.aggregateByKey(new Tuple2<>(0, 0), new Function2<Tuple2<Integer, Integer>, Integer, Tuple2<Integer, Integer>>() {
+            @Override
+            public Tuple2<Integer, Integer> call(Tuple2<Integer, Integer> acc1, Integer value) throws Exception {
+                return new Tuple2<>(acc1._1() + value, acc1._2() + 1);
+            }
+        }, new Function2<Tuple2<Integer, Integer>, Tuple2<Integer, Integer>, Tuple2<Integer, Integer>>() {
+            @Override
+            public Tuple2<Integer, Integer> call(Tuple2<Integer, Integer> tp1, Tuple2<Integer, Integer> tp2) throws Exception {
+                return new Tuple2<>(tp1._1() + tp2._1(), tp1._2() + tp2._2());
+            }
+        });
+
+        JavaPairRDD<String, Double> avgV = aggByKeyPairRdd.mapValues(new Function<Tuple2<Integer, Integer>, Double>() {
+            @Override
+            public Double call(Tuple2<Integer, Integer> tp) throws Exception {
+                return tp._1() * 1.0 / tp._2();
+            }
+        });
+
+        System.out.println(avgV.take(3));
+    }
+
+    private static void cogroupDemo(JavaSparkContext sc) {
         JavaRDD<String> strRdd = sc.textFile("data/pair.txt");
         JavaPairRDD<String, String> rdd1 = strRdd.mapToPair(line -> new Tuple2(line.split(" ")[0], line.split(" ")[1]));
 
@@ -42,8 +89,6 @@ public class SparkTutorial {
 
         JavaPairRDD<String, Tuple2<Iterable<String>, Iterable<String>>> cogroup = rdd1.cogroup(rdd2);
         System.out.println(cogroup.collect());
-
-        sc.close();
     }
 
     private static void paralleRdd(JavaSparkContext sc) {
